@@ -7,6 +7,8 @@ import 'package:kanban_board/bloc/timer/timer_event.dart';
 import 'package:kanban_board/bloc/timer/timer_state.dart';
 import 'package:kanban_board/models/task.dart';
 
+import '../../helpers/locator.dart';
+
 class TimerBloc extends Bloc<TimerEvent, TimerState> {
   final Task task;
   final Ticker ticker = Ticker();
@@ -34,7 +36,7 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
       task.start();
 
       /// Save database
-      await task.save();
+      saveTask(task: task);
 
       debug("Started");
 
@@ -57,7 +59,7 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
       task.stop();
 
       /// Save database
-      await task.save();
+      saveTask(task: task);
 
       debug("Paused");
 
@@ -69,7 +71,7 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
       task.start();
 
       /// Save database
-      await task.save();
+      saveTask(task: task);
 
       debug("Resumed");
 

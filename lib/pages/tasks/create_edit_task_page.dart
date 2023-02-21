@@ -135,8 +135,9 @@ class _CreateTaskPageState extends State<CreateEditTaskPage> {
                           debugPrint(_formKey.currentState?.value.toString());
 
                           final data = {
-                            ..._formKey.currentState!.value,
-                            'color' : selectedColor?.value
+                            'name'       : _formKey.currentState!.value["name"],
+                            'start_time' : _formKey.currentState!.value["start_time"],
+                            'color' : selectedColor?.value,
                           };
 
                           final taskColumn = findTaskColumnByName(name: _formKey.currentState!.value["task_column"]);

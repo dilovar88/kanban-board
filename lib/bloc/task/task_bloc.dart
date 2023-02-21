@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:kanban_board/bloc/task/task_event.dart';
 import 'package:kanban_board/bloc/task/task_state.dart';
 import 'package:kanban_board/helpers/constants.dart';
+import 'package:uuid/uuid.dart';
 import '../../helpers/local_storage.dart';
 import '../../helpers/locator.dart';
 import '../../models/task.dart';
@@ -24,9 +25,11 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
 
   TaskBloc() : super(const TaskInitial()){
 
-    /// Load Initial Data: columns
+    /// Load Initial Data: columns, tasks
     on<TaskLoadData>((event, emit) async{
-      tasksList = await createInitialTaskColumns();
+      createInitialTaskColumns();
+
+      tasksList = await loadTasks();
 
       emit(const TaskInitial());
     });
@@ -41,12 +44,14 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
       emit(const TaskUserPage());
     });
 
-    /// Show Add Task View
+    /// Load Initial Data: columns, tasks
     on<TaskCreateUser>((event, emit) async{
 
       createUser(params: event.params);
 
-      tasksList = await createInitialTaskColumns();
+      createInitialTaskColumns();
+
+      tasksList = await loadTasks();
 
       emit(const TaskInitial());
     });
@@ -66,6 +71,8 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
 
         /// set Task Column
         event.task.taskColumn = event.taskColumn;
+
+        event.task.id = const Uuid().v1();
 
         /// Set completed to now
         if (event.taskColumn.name == completed){
@@ -93,7 +100,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
       if (tasksList.contains(event.task)){
         tasksList.remove(event.task);
 
-        event.task.delete();
+        deleteTask(task: event.task);
       }
 
       emit(const TaskInitial());
@@ -110,7 +117,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
       event.task.movedTime = DateTime.now();
 
       /// save to DB
-      event.task.save();
+      saveTask(task: event.task);
 
       emit(const TaskInitial());
     });
@@ -136,7 +143,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
       }
 
       /// save to DB
-      event.task.save();
+      saveTask(task: event.task);
 
       emit(const TaskInitial());
     });
@@ -153,13 +160,13 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
     final user = GetIt.instance.get<User>();
 
     /// Add Current User to Task's Users List
-    task.taskUsers.add(TaskUser(user: user, taskDurations: []));
+    task.taskUsers.add(TaskUser(id: const Uuid().v1(), user: user, taskDurations: []));
 
     /// Add task To Task List
     tasksList.add(task);
 
     /// Save task in DB
-    LocalStorage().saveTask(task: task);
+    createTask(task: task);
   }
 
   List<Task> getCompletedTasks(){

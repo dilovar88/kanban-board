@@ -5,8 +5,12 @@ import 'package:kanban_board/bloc/task/task_bloc.dart';
 import 'package:kanban_board/helpers/local_storage.dart';
 import 'package:kanban_board/pages/tasks/tasks_page.dart';
 import 'package:kanban_board/helpers/locator.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
   setup();
 
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +23,6 @@ void main() async {
         Locale('en', 'US'),
         Locale('ru', 'RU')
       ],
-      // useOnlyLangCode: true,
       path: 'assets/translations',
       fallbackLocale: const Locale('en', 'US'),
       child: const MyApp()));
@@ -39,9 +42,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      // home: ExportCSV(),
       home:  BlocProvider(create: (_) => TaskBloc(), child: const TaskPage()),
-      // debugShowCheckedModeBanner: false,
     );
   }
 }

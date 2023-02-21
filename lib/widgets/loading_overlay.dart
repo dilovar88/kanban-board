@@ -8,7 +8,6 @@ class LoadingOverlay {
   void show(BuildContext context) {
     if (_overlay == null) {
       _overlay = OverlayEntry(
-        // replace with your own layout
         builder: (context) => const ColoredBox(
           color: Color(0x80000000),
           child: Center(

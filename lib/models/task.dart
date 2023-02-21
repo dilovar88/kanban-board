@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:get_it/get_it.dart';
 import 'package:kanban_board/helpers/helpers.dart';
@@ -14,7 +15,7 @@ part 'task.g.dart';
 @HiveType(typeId: 1)
 class Task  extends HiveObject {
   @HiveField(0)
-  final String _id = const Uuid().v1();
+  String id;
 
   @HiveField(1)
   String name;
@@ -38,25 +39,28 @@ class Task  extends HiveObject {
   @HiveField(7)
   DateTime? movedTime;
 
+  @HiveField(8)
+  String? referenceID;
+
   Task({
+    required this.id,
     required this.name,
     required this.startTime,
     required this.color,
     required this.taskUsers,
     this.taskColumn,
     this.completedTime,
-    this.movedTime
+    this.movedTime,
+    this.referenceID,
   });
-
-  String get id => _id;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Task && runtimeType == other.runtimeType && _id == other._id;
+      other is Task && runtimeType == other.runtimeType && id == other.id;
 
   @override
-  int get hashCode => _id.hashCode;
+  int get hashCode => id.hashCode;
 
   /// Get Current User Task Record
   TaskUser? get taskUser {
@@ -122,12 +126,12 @@ class Task  extends HiveObject {
     TaskUser? item = taskUser;
     
     /// Create TaskUser record if null
-    item ??= TaskUser(user: user, taskDurations: []);
+    item ??= TaskUser(id: const Uuid().v1(), user: user, taskDurations: []);
 
     completedTime = null;
     
     /// New duration added
-    item.taskDurations.add(TaskDuration(from: DateTime.now()));
+    item.taskDurations.add(TaskDuration(id: const Uuid().v1(), from: DateTime.now()));
   }
 
   /// Stop the Task
@@ -149,18 +153,27 @@ class Task  extends HiveObject {
 
   /// Create Instance from Json
   static Task fromJson(Map json) => Task(
+    id: json["id"] ?? const Uuid().v1(),
+    referenceID: json["name"],
     name: json["name"],
+    startTime: json["start_time"] is Timestamp ? (json["start_time"] as Timestamp).toDate() : json["start_time"],
     color: json["color"],
-    startTime: json["start_time"],
-    taskUsers: json.containsKey("task_users") ? json["task_users"] as List<TaskUser> : [],
+
+    taskUsers: json.containsKey("task_users") ? (json["task_users"] as List).map((e) => TaskUser.fromJson(e)).toList() : [],
+    taskColumn: json.containsKey("task_column") ? TaskColumn.fromJson(json["task_column"]) : null,
+    completedTime: json["completed_time"] is Timestamp ? (json["completed_time"] as Timestamp).toDate() : json["completed_time"],
+    movedTime: json["moved_time"] is Timestamp ? (json["moved_time"] as Timestamp).toDate() : json["moved_time"],
   );
 
-  /// To Json for print
   toJson() => {
-    "name"  : name,
-    "color"  : color,
-    "start_date_time" : startTime,
-    "task_users"      : taskUsers.join(","),
+    "id"              : id,
+    "name"            : name,
+    "start_time"      : startTime,
+    "color"           : color,
+    "task_users"      : taskUsers.map((e) => e.toJson()).toList(),
+    "task_column"     : taskColumn?.toJson(),
+    "completed_time"  : completedTime,
+    "moved_time"      : movedTime,
   };
 
   /// Get Durations List for debug

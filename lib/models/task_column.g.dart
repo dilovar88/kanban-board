@@ -17,18 +17,21 @@ class TaskColumnAdapter extends TypeAdapter<TaskColumn> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return TaskColumn(
-      name: fields[0] as String,
-      color: fields[1] as int,
+      name: fields[1] as String,
+      color: fields[2] as int,
+      id: fields[0] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, TaskColumn obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
-      ..write(obj.name)
+      ..write(obj.id)
       ..writeByte(1)
+      ..write(obj.name)
+      ..writeByte(2)
       ..write(obj.color);
   }
 

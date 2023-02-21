@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:kanban_board/helpers/helpers.dart';
 import 'package:kanban_board/models/task_column.dart';
 import 'package:kanban_board/models/task_duration.dart';
 import 'package:kanban_board/models/task_user.dart';
@@ -19,10 +18,11 @@ class LocalStorage {
     return _instance;
   }
 
+  LocalStorage._internal();
+
   Box<User>? userBox;
   Box<Task>? taskBox;
 
-  LocalStorage._internal();
 
   /// Initialize Hive Local Database
   init() async{
@@ -52,11 +52,22 @@ class LocalStorage {
     }
   }
 
+  /// Load locally saved tasks
+  List<Task> loadTasks(){
+    /// Get List From Box
+    Iterable<Task>? tasks = LocalStorage().taskBox?.values;
+    return tasks?.toList() ?? [];
+  }
+
+  /// Create new task
+  createTask({required Task task}) async{
+    await taskBox?.add(task);
+  }
+
+  /// Create new user
   createUser({required User user}) async {
     await userBox?.add(user);
   }
 
-  saveTask({required Task task}) async{
-    await taskBox?.add(task);
-  }
+
 }

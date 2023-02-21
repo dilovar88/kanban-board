@@ -17,19 +17,22 @@ class TaskUserAdapter extends TypeAdapter<TaskUser> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return TaskUser(
+      id: fields[0] as String,
       user: fields[1] as User,
-      taskDurations: (fields[0] as List).cast<TaskDuration>(),
+      taskDurations: (fields[2] as List).cast<TaskDuration>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, TaskUser obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
-      ..write(obj.taskDurations)
+      ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.user);
+      ..write(obj.user)
+      ..writeByte(2)
+      ..write(obj.taskDurations);
   }
 
   @override

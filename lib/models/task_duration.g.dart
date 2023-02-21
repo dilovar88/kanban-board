@@ -17,18 +17,21 @@ class TaskDurationAdapter extends TypeAdapter<TaskDuration> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return TaskDuration(
-      from: fields[0] as DateTime,
-      to: fields[1] as DateTime?,
+      id: fields[0] as String,
+      from: fields[1] as DateTime,
+      to: fields[2] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, TaskDuration obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
-      ..write(obj.from)
+      ..write(obj.id)
       ..writeByte(1)
+      ..write(obj.from)
+      ..writeByte(2)
       ..write(obj.to);
   }
 
