@@ -4,7 +4,6 @@ class LoadingOverlay {
   OverlayEntry? _overlay;
 
   LoadingOverlay();
-
   void show(BuildContext context) {
     if (_overlay == null) {
       _overlay = OverlayEntry(
